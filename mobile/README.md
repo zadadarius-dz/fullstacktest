@@ -2,7 +2,7 @@
 
 Aplikasi Android untuk **StockMate — Simple Inventory Management System**, dibangun dengan Flutter dan terhubung ke StockMate REST API yang sama dengan web.
 
-> **Status verifikasi: BELUM DI-BUILD.** Flutter/Dart dan Android SDK **tidak terpasang** di mesin pengembangan. Kode sudah ditulis lengkap, tetapi `flutter pub get`, `flutter analyze`, dan `flutter build apk` **belum pernah dijalankan**. Tidak ada APK yang dihasilkan. Lihat [`../stockmate/docs/TESTING.md`](../stockmate/docs/TESTING.md).
+> **Status verifikasi: BELUM DI-BUILD.** Flutter/Dart dan Android SDK **tidak terpasang** di mesin pengembangan. Kode sudah ditulis lengkap, tetapi `flutter pub get`, `flutter analyze`, dan `flutter build apk` **belum pernah dijalankan**. Tidak ada APK yang dihasilkan. Lihat [`../docs/TESTING.md`](../docs/TESTING.md).
 
 ## 1. Fitur
 
@@ -76,7 +76,7 @@ Folder `android/`, `ios/`, dan file platform lain **belum ada**.
 Karena repository ini hanya berisi kode Dart, folder platform harus dibuat:
 
 ```bash
-cd C:\Projects\stockmate-mobile
+cd C:\projects\stockmate\mobile
 flutter create --platforms=android,ios .
 ```
 
@@ -104,7 +104,7 @@ dotnet run --project StockMate.Api
 Lalu:
 
 ```bash
-cd C:\Projects\stockmate-mobile
+cd C:\projects\stockmate\mobile
 flutter run
 ```
 

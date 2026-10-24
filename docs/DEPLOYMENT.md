@@ -200,7 +200,7 @@ Isi setelah benar-benar berjalan:
 ### 5.1 Build
 
 ```bash
-cd C:\Projects\stockmate-web
+cd C:\projects\stockmate\web
 npm ci
 ```
 
@@ -286,7 +286,7 @@ Di mesin pengembangan saat ini **tidak ada Flutter/Android SDK**, sehingga APK *
 
 ### 6.2 Menyiapkan platform folder
 
-Folder `android/` belum ada. Dari `C:\Projects\stockmate-mobile`:
+Folder `android/` belum ada. Dari `C:\projects\stockmate\mobile`:
 
 ```bash
 flutter create --platforms=android,ios .

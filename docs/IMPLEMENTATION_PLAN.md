@@ -67,6 +67,8 @@ Karena tidak ada scaffold `StockMate.Api` atau `WeatherForecast` yang perlu dipe
 
 ### Hasil verifikasi akhir (24 Oktober 2026)
 
+**Struktur akhir:** monorepo `https://github.com/zadadarius-dz/fullstacktest.git` dengan backend di root, web di `web/`, dan mobile di `mobile/`.
+
 | Pemeriksaan | Perintah | Hasil |
 |---|---|---|
 | Build backend | `dotnet build StockMate.sln` | Berhasil, **0 warning / 0 error**, 7,76 detik |
@@ -145,8 +147,8 @@ StockMate.Api.Tests/  Unit + integration tests
 | `docs/DATABASE.md` | ERD, tabel, constraint, index, transaksi, backup |
 | `docs/DEPLOYMENT.md` | Langkah deploy backend/DB/web/mobile, checklist, smoke test |
 | `docs/TESTING.md` | Hasil build/test aktual, matriks test, cara menjalankan |
-| `../stockmate-web/README.md` | Setup, script, rute, environment web |
-| `../stockmate-mobile/README.md` | Setup Flutter, secure storage, URL API, status build |
+| `web/README.md` | Setup, script, rute, environment web |
+| `mobile/README.md` | Setup Flutter, secure storage, URL API, status build |
 
 ## 7. Pekerjaan lanjutan (di luar scope MVP)
 

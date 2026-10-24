@@ -58,13 +58,13 @@ Jangan mencampur target framework dan versi paket tanpa build/test.
 ## 4. Setup lokal dari clone bersih
 
 ```powershell
-git clone <URL_REPOSITORY_BACKEND>
-cd stockmate
+git clone https://github.com/zadadarius-dz/fullstacktest.git
+cd fullstacktest
 dotnet restore StockMate.sln
 dotnet build StockMate.sln
 ```
 
-Jika repository belum memiliki remote, cukup buka folder proyek dan jalankan perintah restore/build di atas.
+Repository ini adalah monorepo berisi backend, web, dan mobile:
 
 ## 5. Konfigurasi environment
 
@@ -205,7 +205,7 @@ Bila `STOCKMATE_TEST_DATABASE` tidak diisi, test integration akan di-skip (bukan
 
 Hasil verifikasi terakhir di mesin pengembangan: **9/9 test lulus** menggunakan cluster PostgreSQL sementara. Rincian ada di [`docs/TESTING.md`](docs/TESTING.md).
 
-## 9. Struktur proyek
+## 9. Struktur proyek (monorepo)
 
 ```text
 StockMate.sln
@@ -221,8 +221,12 @@ StockMate.Api/
   Program.cs
   appsettings.json
 StockMate.Api.Tests/  Integration test (xUnit + WebApplicationFactory)
+web/                  Aplikasi React + Vite (lihat web/README.md)
+mobile/               Aplikasi Flutter (lihat mobile/README.md)
 docs/                 API, DATABASE, DEPLOYMENT, TESTING, IMPLEMENTATION_PLAN
 ```
+
+Perintah backend dijalankan dari root repository. Perintah web dijalankan dari `web/`, dan perintah Flutter dari `mobile/`.
 
 Alur request: `Controller → Service → Repository → PostgreSQL`. Controller hanya menangani HTTP; aturan bisnis ada di service; SQL dan transaksi ada di repository.
 

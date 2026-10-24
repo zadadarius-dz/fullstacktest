@@ -2,7 +2,7 @@
 
 Aplikasi web untuk **StockMate — Simple Inventory Management System**. Dibangun dengan React 19 + Vite, berkomunikasi dengan StockMate REST API.
 
-> **Status verifikasi:** `npm run lint` bersih dan `npm run build` berhasil (Vite 8.3.5, 53 modul). Belum ada deployment, URL publik, atau E2E test otomatis. Detail ada di [`../stockmate/docs/TESTING.md`](../stockmate/docs/TESTING.md).
+> **Status verifikasi:** `npm run lint` bersih dan `npm run build` berhasil (Vite 8.3.5, 53 modul). Belum ada deployment, URL publik, atau E2E test otomatis. Detail ada di [`../docs/TESTING.md`](../docs/TESTING.md).
 
 ## 1. Fitur
 
@@ -44,7 +44,7 @@ State global autentikasi memakai Context API. Data fetching memakai Fetch API me
 ## 4. Menjalankan lokal
 
 ```powershell
-cd C:\Projects\stockmate-web
+cd C:\projects\stockmate\web
 npm install
 ```
 
@@ -71,7 +71,7 @@ cd C:\projects\stockmate
 dotnet run --project StockMate.Api
 ```
 
-Pastikan `ConnectionStrings__DefaultConnection` dan (untuk Production) `Jwt__SigningKey` sudah diisi melalui environment. Lihat [`../stockmate/README.md`](../stockmate/README.md).
+Pastikan `ConnectionStrings__DefaultConnection` dan (untuk Production) `Jwt__SigningKey` sudah diisi melalui environment. Lihat [`../README.md`](../README.md).
 
 ## 5. Environment variable
 
@@ -169,7 +169,7 @@ Hasil ada di `dist/`. Untuk hosting:
 - Aktifkan HTTPS.
 - Tambahkan origin web ke `Cors__AllowedOrigins__N` di backend.
 
-Panduan lengkap: [`../stockmate/docs/DEPLOYMENT.md`](../stockmate/docs/DEPLOYMENT.md).
+Panduan lengkap: [`../docs/DEPLOYMENT.md`](../docs/DEPLOYMENT.md).
 
 ### Status deployment
 

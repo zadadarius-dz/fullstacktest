@@ -155,7 +155,7 @@ JWT key untuk smoke test hanya berada di shell dan tidak disimpan di repository.
 ### 6.1 Perintah dan hasil
 
 ```powershell
-cd C:\Projects\stockmate-web
+cd C:\projects\stockmate\web
 npm run lint
 npm run build
 ```
@@ -217,7 +217,7 @@ Tidak ada klaim bahwa kode mobile berhasil dikompilasi atau APK tersedia.
 ### 7.2 Langkah verifikasi yang harus dilakukan
 
 1. Pasang Flutter SDK stabil dan Android SDK.
-2. Dari `C:\Projects\stockmate-mobile`, jalankan `flutter create --platforms=android,ios .` (tinjau diff).
+2. Dari `C:\projects\stockmate\mobile`, jalankan `flutter create --platforms=android,ios .` (tinjau diff).
 3. `flutter pub get`.
 4. `flutter analyze` — perbaiki semua error/warning.
 5. `flutter test` bila test ditambahkan.
@@ -275,7 +275,7 @@ $env:STOCKMATE_TEST_DATABASE = 'Host=localhost;Port=5432;Database=stockmate_test
 dotnet test StockMate.sln --no-build --logger "console;verbosity=normal"
 
 # 4. Web
-cd C:\Projects\stockmate-web
+cd C:\projects\stockmate\web
 npm ci
 npm run lint
 npm run build
