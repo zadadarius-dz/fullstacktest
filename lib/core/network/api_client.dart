@@ -52,10 +52,11 @@ class ApiClient {
     Map<String, dynamic>? body,
   }) async {
     final token = await _tokenStorage.readToken();
+    final hasToken = token != null && token.isNotEmpty;
     final headers = <String, String>{
       'Accept': 'application/json',
       if (body != null) 'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (hasToken) 'Authorization': 'Bearer $token',
     };
 
     http.Response response;
@@ -76,12 +77,15 @@ class ApiClient {
     }
 
     if (response.statusCode == 401) {
-      await _tokenStorage.clearToken();
-      onUnauthorized?.call();
-      throw ApiException(
-        'Sesi berakhir. Silakan login kembali.',
-        statusCode: 401,
-      );
+      if (hasToken) {
+        await _tokenStorage.clearToken();
+        onUnauthorized?.call();
+        throw ApiException(
+          'Sesi berakhir. Silakan login kembali.',
+          statusCode: 401,
+        );
+      }
+      throw _parseError(response);
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
