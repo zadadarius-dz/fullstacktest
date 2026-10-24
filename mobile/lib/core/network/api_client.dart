@@ -115,8 +115,8 @@ class ApiClient {
               errors![key] = value.map((item) => item.toString()).toList();
             }
           });
-          if (errors!.isNotEmpty) {
-            final firstMessages = errors!.values.first;
+          if (errors.isNotEmpty) {
+            final firstMessages = errors.values.first;
             if (firstMessages.isNotEmpty) {
               message = firstMessages.first;
             }

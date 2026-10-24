@@ -1,8 +1,8 @@
-# StockMate API
+# StockMate
 
-Backend REST API untuk **StockMate — Simple Inventory Management System**. API ini menangani autentikasi JWT, CRUD kategori dan produk, pencatatan stok masuk/keluar secara atomik, serta ringkasan dashboard. Setiap data dibatasi berdasarkan pengguna yang sedang login.
+Monorepo **StockMate — Simple Inventory Management System**: backend REST API .NET di root, web React di `web/`, dan aplikasi Flutter di `mobile/`. API menangani autentikasi JWT, CRUD kategori dan produk, pencatatan stok masuk/keluar secara atomik, serta ringkasan dashboard. Setiap data dibatasi berdasarkan pengguna yang sedang login.
 
-> Status verifikasi terakhir: `dotnet build` berhasil dengan **0 warning / 0 error** dan **9 integration test lulus** menggunakan PostgreSQL lokal sementara. Detail hasil ada di [`docs/TESTING.md`](docs/TESTING.md). API ini **belum di-deploy**; tidak ada URL publik yang diklaim.
+> Status verifikasi terakhir (24 Oktober 2026): `dotnet build` **0 warning / 0 error**, **9 integration test lulus**, database `stockmate` aktif dan `/health` **Healthy**, web lint bersih dan build berhasil, mobile `flutter analyze` bersih, **5/5 test lulus**, serta APK 50,0 MB terpasang dan berjalan di HP Android 14. Detail ada di [`docs/TESTING.md`](docs/TESTING.md). API dan web **belum di-deploy**; tidak ada URL publik yang diklaim.
 
 ## 1. Fitur
 

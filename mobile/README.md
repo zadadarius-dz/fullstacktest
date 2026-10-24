@@ -2,7 +2,7 @@
 
 Aplikasi Android untuk **StockMate — Simple Inventory Management System**, dibangun dengan Flutter dan terhubung ke StockMate REST API yang sama dengan web.
 
-> **Status verifikasi: BELUM DI-BUILD.** Flutter/Dart dan Android SDK **tidak terpasang** di mesin pengembangan. Kode sudah ditulis lengkap, tetapi `flutter pub get`, `flutter analyze`, dan `flutter build apk` **belum pernah dijalankan**. Tidak ada APK yang dihasilkan. Lihat [`../docs/TESTING.md`](../docs/TESTING.md).
+> **Status verifikasi: SUDAH DI-BUILD DAN DIUJI DI HP.** Flutter 3.47.8, `flutter analyze` bersih (0 issue), `flutter test` 5/5 lulus, dan APK release 50,0 MB berhasil dibangun, diinstal, serta dijalankan di HP Android 14 (2410FPCC5G) melalui `adb reverse`. Login, dashboard, produk, kategori, dan riwayat berhasil memanggil API. Lihat [`../docs/TESTING.md`](../docs/TESTING.md).
 
 ## 1. Fitur
 
@@ -25,10 +25,10 @@ Aplikasi Android untuk **StockMate — Simple Inventory Management System**, dib
 
 | Komponen | Versi |
 |---|---|
-| Flutter SDK | `>=3.4.0 <4.0.0` (dideklarasikan; belum diverifikasi) |
+| Flutter SDK | 3.47.8 stable (Dart 3.13.7) — terverifikasi |
 | provider | ^6.1.2 |
 | http | ^1.2.2 |
-| flutter_secure_storage | ^9.2.2 |
+| flutter_secure_storage | ^9.2.2 (terpasang 9.2.4) |
 | intl | ^0.19.0 |
 | cupertino_icons | ^1.0.8 |
 | flutter_lints | ^4.0.0 |
@@ -37,8 +37,8 @@ State management memakai **Provider** (`ChangeNotifier`). HTTP memakai package `
 
 ## 3. Prasyarat
 
-- Flutter SDK stabil yang memenuhi constraint SDK.
-- Android SDK, build tools, dan JDK yang kompatibel.
+- Flutter SDK stabil yang memenuhi constraint SDK (diuji dengan 3.47.8).
+- Android SDK 36, build tools, dan JDK 17 (diuji dengan JDK bawaan Android Studio).
 - Emulator Android atau perangkat fisik.
 - Backend StockMate berjalan dan dapat diakses dari perangkat/emulator.
 
@@ -67,22 +67,32 @@ lib/
   widgets/                      async_state, section_card, badges
 pubspec.yaml
 analysis_options.yaml
+android/                      Proyek Android (applicationId com.stockmate.stockmate_mobile)
+ios/                          Proyek iOS
+test/widget_test.dart         Test formatter dan widget dasar
 ```
 
-Folder `android/`, `ios/`, dan file platform lain **belum ada**.
+Folder `android/` dan `ios/` sudah dibuat dengan `flutter create` dan ikut di-commit. Folder `build/`, `.dart_tool/`, serta artefak Gradle tidak di-commit.
 
-## 5. Menyiapkan platform folder
+## 5. Platform Android dan iOS
 
-Karena repository ini hanya berisi kode Dart, folder platform harus dibuat:
+Folder platform sudah tersedia, jadi tidak perlu menjalankan `flutter create` lagi. Jika perlu meregenerasi:
 
 ```bash
 cd C:\projects\stockmate\mobile
-flutter create --platforms=android,ios .
+flutter create --platforms=android,ios --org com.stockmate --project-name stockmate_mobile .
 ```
 
-> **Penting:** `flutter create` dapat menambahkan atau menimpa file. Lakukan commit terlebih dahulu, lalu tinjau `git diff`. Pastikan `lib/`, `pubspec.yaml`, dan `analysis_options.yaml` tetap sesuai.
+> **Penting:** `flutter create` dapat menambahkan atau menimpa file. Lakukan commit terlebih dahulu, lalu tinjau `git diff`. Pastikan `lib/`, `pubspec.yaml`, `analysis_options.yaml`, dan `android/app/src/main/AndroidManifest.xml` tetap sesuai.
 
-Setelah itu:
+Konfigurasi Android yang sudah diterapkan:
+
+- `INTERNET` permission di `android/app/src/main/AndroidManifest.xml`.
+- Label aplikasi `StockMate`.
+- `android/app/src/main/res/xml/network_security_config.xml`: cleartext HTTP **hanya** untuk `10.0.2.2`, `localhost`, dan `127.0.0.1`. Domain lain wajib HTTPS.
+- `minSdk` mengikuti default Flutter (24), cocok untuk `flutter_secure_storage`.
+
+Setelah perubahan dependensi:
 
 ```bash
 flutter pub get
@@ -110,6 +120,24 @@ flutter run
 
 ### 6.2 Perangkat fisik
 
+#### Cara mudah: USB + `adb reverse` (dipakai saat verifikasi)
+
+Cara ini tidak memerlukan IP LAN, firewall, atau perubahan alamat listen API.
+
+```powershell
+# HP terhubung USB dan USB debugging aktif
+adb reverse tcp:5131 tcp:5131
+
+flutter build apk --release --dart-define=API_BASE_URL=http://127.0.0.1:5131
+adb install -r build\app\outputs\flutter-apk\app-release.apk
+```
+
+`adb reverse` membuat `127.0.0.1:5131` di HP diteruskan ke `127.0.0.1:5131` di komputer. Mapping ini **hilang** saat kabel dilepas, adb server restart, atau HP reboot; jalankan ulang `adb reverse` sebelum membuka aplikasi.
+
+Jika HP menolak instalasi dengan `INSTALL_FAILED_USER_RESTRICTED`, aktifkan **Developer options → Install via USB** (Xiaomi/HyperOS) atau opsi serupa pada merek lain.
+
+#### Cara alternatif: Wi-Fi / LAN
+
 `10.0.2.2` **tidak berlaku** untuk perangkat fisik. Gunakan IP LAN komputer yang menjalankan API:
 
 ```bash
@@ -121,6 +149,7 @@ Pastikan:
 - API listen pada antarmuka yang dapat dijangkau (`ASPNETCORE_URLS=http://0.0.0.0:5131`).
 - Firewall mengizinkan port tersebut.
 - Perangkat dan komputer berada di jaringan yang sama.
+- Untuk HTTP di perangkat fisik, tambahkan IP LAN komputer ke `android/app/src/main/res/xml/network_security_config.xml`, misalnya `<domain includeSubdomains="false">192.168.1.10</domain>`, lalu build ulang. Tanpa itu Android memblokir cleartext HTTP.
 
 Untuk build rilis, gunakan HTTPS:
 
@@ -157,21 +186,25 @@ Konfigurasi signing produksi (keystore, `key.properties`) **tidak** disertakan d
 
 | Item | Status |
 |---|---|
-| `flutter pub get` | Belum dijalankan |
-| `flutter analyze` | Belum dijalankan |
-| `flutter test` | Belum ada test; belum dijalankan |
-| APK release | **Belum dibangun** |
-| Lokasi APK | `build/app/outputs/flutter-apk/app-release.apk` (setelah build berhasil) |
+| `flutter pub get` | ✅ Berhasil (Flutter 3.47.8 / Dart 3.13.7) |
+| `flutter analyze` | ✅ **No issues found** |
+| `flutter test` | ✅ **5/5 lulus** (formatter + widget) |
+| APK release | ✅ Berhasil, **50,0 MB** |
+| Lokasi APK | `build/app/outputs/flutter-apk/app-release.apk` |
+| Instalasi & runtime | ✅ Terpasang dan berjalan di 2410FPCC5G (Android 14) |
+| Koneksi API | ✅ Login + dashboard + produk + kategori + riwayat, semua HTTP 200 |
+
+APK verifikasi dibangun dengan `--dart-define=API_BASE_URL=http://127.0.0.1:5131` dan memerlukan `adb reverse tcp:5131 tcp:5131`. APK ini ditandatangani dengan **debug key** dari template Flutter; bukan untuk Play Store.
 
 ## 8. Keamanan
 
-- Token akses disimpan melalui `flutter_secure_storage`, yang memakai Android Keystore/EncryptedSharedPreferences.
+- Token akses disimpan melalui `flutter_secure_storage` yang memakai Android Keystore.
 - Token tidak ditulis ke log.
 - Logout menghapus token dari secure storage.
 - Respons `401` memicu `onUnauthorized` dan mengembalikan pengguna ke login.
 - Untuk produksi, **wajib HTTPS**; jangan mengirim token melalui HTTP biasa.
 - Tidak ada credential yang ditanam di kode.
-- `usesCleartextTraffic` untuk HTTP lokal hanya boleh dipakai di development; jangan aktifkan di rilis.
+- `usesCleartextTraffic` tidak diaktifkan secara global. Cleartext hanya diizinkan untuk alamat loopback pengembangan melalui `network_security_config.xml`; domain lain wajib HTTPS.
 
 ## 9. Alur data
 
@@ -193,18 +226,17 @@ Screen → Provider (ChangeNotifier) → Service → ApiClient → REST API
 | `SocketException` / connection refused | API mati atau URL salah | Jalankan backend; periksa `API_BASE_URL`. |
 | Emulator tidak dapat terhubung | Memakai `localhost` | Gunakan `10.0.2.2` untuk emulator. |
 | Perangkat fisik tidak terhubung | Memakai `10.0.2.2` atau firewall | Gunakan IP LAN; buka port; cek firewall. |
-| `Cleartext HTTP not permitted` | Android memblokir HTTP | Gunakan HTTPS, atau konfigurasi network security khusus development. |
+| `Cleartext HTTP not permitted` | Android memblokir HTTP | Tambahkan host/IP ke `network_security_config.xml`, atau gunakan HTTPS. |
 | Login berhasil lalu keluar sendiri | Token kedaluwarsa / signing key berubah | Login ulang; pastikan key API stabil. |
 | `flutter pub get` gagal | SDK tidak sesuai | Periksa `flutter --version` terhadap constraint `>=3.4.0 <4.0.0`. |
 | Build gagal setelah `flutter create` | File platform tertimpa | Tinjau `git diff`, pulihkan file yang salah. |
 
 ## 11. Yang belum ada
 
-- Test widget/unit.
-- Build dan verifikasi APK.
+- Uji manual lengkap seluruh alur (create/edit produk, transaksi IN/OUT, soft delete, sesi kedaluwarsa). Yang sudah diverifikasi: login, dashboard, daftar produk, kategori, dan riwayat.
 - CI/CD.
 - Deep link, notifikasi, mode offline.
-- Dukungan iOS yang telah diuji (folder iOS belum dibuat).
-- Publikasi ke Play Store.
+- Dukungan iOS yang telah diuji di macOS.
+- Publikasi ke Play Store dan signing produksi.
 
 Semua item di atas adalah pekerjaan lanjutan dan **belum** diselesaikan.

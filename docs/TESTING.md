@@ -1,8 +1,8 @@
 # StockMate — Testing
 
 **Tanggal verifikasi terakhir:** 24 Oktober 2026  
-**Lingkungan:** Windows, .NET SDK 8.0.426, PostgreSQL 18.6, Node.js 24.18.0  
-**Status ringkas:** backend build bersih, **9/9 integration test lulus**, web lint bersih dan build berhasil. Mobile **belum diverifikasi** karena Flutter tidak terpasang.
+**Lingkungan:** Windows, .NET SDK 8.0.426, PostgreSQL 18.6, Node.js 24.18.0, Flutter 3.47.8, Android SDK 36  
+**Status ringkas:** backend build bersih, **9/9 integration test lulus**, web lint bersih dan build berhasil, mobile **analyze bersih, 5/5 test lulus, APK 50,0 MB terpasang dan berjalan di HP Android 14**.
 
 Dokumen ini hanya memuat hasil yang benar-benar dijalankan. Bagian yang belum diuji ditandai eksplisit.
 
@@ -15,8 +15,10 @@ Dokumen ini hanya memuat hasil yang benar-benar dijalankan. Bagian yang belum di
 | Web lint | `npm run lint` (oxlint) | **Bersih**, tanpa warning |
 | Web build | `npm run build` (Vite 8.3.5) | **Berhasil**, 53 modul, 905 ms |
 | Web output | `dist/` | JS 303,05 kB (gzip 92,14 kB); CSS 14,26 kB (gzip 3,72 kB); HTML 0,65 kB |
-| Mobile analyze | `flutter analyze` | **Tidak dijalankan** — Flutter tidak terpasang |
-| Mobile build | `flutter build apk` | **Tidak dijalankan** — Android SDK tidak terpasang |
+| Mobile analyze | `flutter analyze` | **No issues found** |
+| Mobile test | `flutter test` | **5/5 lulus** |
+| Mobile build | `flutter build apk --release` | **Berhasil**, 50,0 MB |
+| Mobile runtime | `adb install` + launch | **Berjalan di 2410FPCC5G Android 14**, tanpa ANR/FATAL |
 | Deployment | – | **Belum dilakukan** |
 
 Tidak ada hasil test atau build yang disimulasikan.
@@ -201,35 +203,50 @@ Jalankan dengan backend aktif dan database berisi data uji:
 
 ## 7. Pengujian mobile
 
-### 7.1 Status
+### 7.1 Hasil verifikasi (24 Oktober 2026)
 
-**Belum diverifikasi.** Flutter/Dart tidak terpasang di mesin ini, sehingga perintah berikut belum pernah dijalankan:
+**Lingkungan:** Flutter 3.47.8 stable / Dart 3.13.7, Android SDK 36.1.0, JDK 17 (Android Studio), HP **2410FPCC5G** Android 14 (arm64-v8a).
 
-```bash
-flutter pub get
-flutter analyze
-flutter test
-flutter build apk --release --dart-define=API_BASE_URL=https://<domain-api-anda>
-```
+| Pemeriksaan | Perintah | Hasil |
+|---|---|---|
+| Resolusi dependensi | `flutter pub get` | ✅ Berhasil |
+| Analisis statis | `flutter analyze` | ✅ **No issues found** |
+| Test | `flutter test` | ✅ **5/5 lulus** |
+| Build APK (pertama) | `flutter build apk --release ...` | ✅ 50,0 MB; 1.574,9 detik (termasuk unduh NDK 28.2, SDK 34/35/36, CMake) |
+| Build APK (kedua) | `flutter build apk --release --dart-define=API_BASE_URL=http://127.0.0.1:5131` | ✅ 50,0 MB; 123,9 detik |
+| Instalasi | `adb install -r app-release.apk` | ✅ `Success` |
+| Runtime | `adb shell am start ...` | ✅ Fully drawn 3,9 detik, tanpa FATAL/ANR |
+| Koneksi API | `adb reverse tcp:5131 tcp:5131` | ✅ Login `200`, dashboard `200`, produk `200`, kategori `200`, riwayat `200` |
 
-Tidak ada klaim bahwa kode mobile berhasil dikompilasi atau APK tersedia.
+Catatan penting:
 
-### 7.2 Langkah verifikasi yang harus dilakukan
+- Build pertama lambat karena Gradle mengunduh NDK dan beberapa Android SDK platform. Build berikutnya memakai cache.
+- Instalasi sempat gagal dengan `INSTALL_FAILED_USER_RESTRICTED`; penyebabnya opsi **Install via USB** belum aktif di HyperOS, bukan masalah APK.
+- APK verifikasi memakai `API_BASE_URL=http://127.0.0.1:5131` dan bergantung pada `adb reverse`. Untuk penggunaan mandiri tanpa kabel, gunakan HTTPS atau IP LAN dan sesuaikan `network_security_config.xml`.
+- APK ditandatangani dengan debug key template Flutter; bukan artefak Play Store.
 
-1. Pasang Flutter SDK stabil dan Android SDK.
-2. Dari `C:\projects\stockmate\mobile`, jalankan `flutter create --platforms=android,ios .` (tinjau diff).
-3. `flutter pub get`.
-4. `flutter analyze` — perbaiki semua error/warning.
-5. `flutter test` bila test ditambahkan.
-6. Jalankan di emulator/perangkat dengan backend aktif.
-7. `flutter build apk --release --dart-define=API_BASE_URL=...`.
-8. Uji APK pada perangkat nyata.
+### 7.2 Cara mereproduksi
+
+1. Pastikan API berjalan dan `/health` mengembalikan `Healthy`.
+2. Hubungkan HP dengan USB debugging aktif.
+3. Jalankan `adb reverse tcp:5131 tcp:5131`.
+4. Dari `C:\projects\stockmate\mobile`:
+   ```powershell
+   flutter pub get
+   flutter analyze
+   flutter test
+   flutter build apk --release --dart-define=API_BASE_URL=http://127.0.0.1:5131
+   adb install -r build\app\outputs\flutter-apk\app-release.apk
+   adb shell am start -n com.stockmate.stockmate_mobile/.MainActivity
+   ```
+5. Login dan periksa dashboard.
 
 ### 7.3 Checklist manual mobile
 
-- [ ] Register dan login; token tersimpan aman.
+- [x] Login dengan akun yang sudah ada; token diterima dan dashboard terbuka.
+- [ ] Register dari aplikasi.
 - [ ] Restart aplikasi → sesi dipulihkan dari secure storage.
-- [ ] Dashboard menampilkan ringkasan.
+- [x] Dashboard menampilkan ringkasan (2 produk, 3 kategori, 47 unit, 2 stok menipis).
 - [ ] Daftar produk, pencarian, filter kategori, filter stok menipis.
 - [ ] Buat kategori cepat dari form produk.
 - [ ] Create produk → stok 0.
@@ -253,7 +270,8 @@ Tidak ada klaim bahwa kode mobile berhasil dikompilasi atau APK tersedia.
 | Stok tidak pernah negatif | ✅ constraint + test #6 dan #9 |
 | Swagger memuat endpoint StockMate | ✅ smoke test manual |
 | Web build bersih | ✅ lint + build |
-| Mobile dianalisis/di-build | ⛔ belum — toolchain tidak tersedia |
+| Mobile dianalisis/di-build | ✅ analyze bersih, 5/5 test, APK 50,0 MB terpasang & berjalan di HP |
+| Alur mobile diuji manual | ⚠️ Sebagian — login dan dashboard terverifikasi; alur lain belum |
 | Dokumentasi lengkap tanpa klaim palsu | ✅ README + API + DATABASE + DEPLOYMENT + TESTING |
 | Deployment produksi | ⛔ belum dilakukan |
 

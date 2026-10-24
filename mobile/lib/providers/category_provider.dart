@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 
 import '../core/network/api_client.dart';
 import '../core/network/api_exception.dart';

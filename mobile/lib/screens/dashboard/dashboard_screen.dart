@@ -201,13 +201,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          SectionCard(
+          const SectionCard(
             child: Row(
               children: [
-                const Icon(Icons.lightbulb_outline_rounded,
+                Icon(Icons.lightbulb_outline_rounded,
                     color: AppColors.primary),
-                const SizedBox(width: 12),
-                const Expanded(
+                SizedBox(width: 12),
+                Expanded(
                   child: Text(
                     'Stok hanya berubah melalui transaksi IN/OUT. Edit produk tidak akan mengubah jumlah stok.',
                     style: TextStyle(color: AppColors.muted, fontSize: 12),

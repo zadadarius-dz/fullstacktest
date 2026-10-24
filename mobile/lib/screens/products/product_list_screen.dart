@@ -106,7 +106,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     children: [
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: products.categoryId.isEmpty
+                          key: ValueKey('category-${products.categoryId}'),
+                          initialValue: products.categoryId.isEmpty
                               ? null
                               : products.categoryId,
                           isExpanded: true,

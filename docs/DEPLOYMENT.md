@@ -282,17 +282,17 @@ Aturan:
 - Android SDK + build tools.
 - JDK yang kompatibel dengan Gradle/AGP.
 
-Di mesin pengembangan saat ini **tidak ada Flutter/Android SDK**, sehingga APK **belum pernah dibangun**.
+Di mesin pengembangan sudah terpasang Flutter 3.47.8 dan Android SDK 36. APK release **sudah berhasil dibangun** (50,0 MB) dan diuji di HP Android 14 melalui `adb reverse`. Ini **bukan** artefak produksi: signing masih memakai debug key dan API masih lokal.
 
-### 6.2 Menyiapkan platform folder
+### 6.2 Platform folder
 
-Folder `android/` belum ada. Dari `C:\projects\stockmate\mobile`:
+Folder `android/` dan `ios/` sudah ada dan ikut di-commit. Tidak perlu menjalankan `flutter create` lagi. Jika perlu meregenerasi dari `C:\projects\stockmate\mobile`:
 
 ```bash
-flutter create --platforms=android,ios .
+flutter create --platforms=android,ios --org com.stockmate --project-name stockmate_mobile .
 ```
 
-> Perintah ini dapat menimpa/menambahkan file platform. Tinjau diff dan pertahankan `lib/`, `pubspec.yaml`, serta konfigurasi yang sudah ada. Commit sebelum menjalankan agar perubahan mudah dibandingkan.
+> Perintah ini dapat menimpa/menambahkan file platform. Tinjau diff dan pertahankan `lib/`, `pubspec.yaml`, `AndroidManifest.xml`, serta konfigurasi yang sudah ada. Commit sebelum menjalankan agar perubahan mudah dibandingkan.
 
 Lalu:
 
@@ -333,9 +333,13 @@ Catatan:
 
 | Item | Status |
 |---|---|
-| APK release | **Belum dibangun** — Flutter/Android SDK tidak tersedia di mesin ini |
-| `flutter analyze` | **Belum dijalankan** |
-| Lokasi APK | `build/app/outputs/flutter-apk/app-release.apk` (setelah build berhasil) |
+| APK release | ✅ Dibangun dan diuji lokal — **50,0 MB**, debug signing, bukan untuk Play Store |
+| `flutter analyze` | ✅ No issues found |
+| `flutter test` | ✅ 5/5 lulus |
+| Lokasi APK | `build/app/outputs/flutter-apk/app-release.apk` |
+| Uji perangkat | ✅ 2410FPCC5G Android 14, login + dashboard berhasil |
+
+Untuk produksi, build ulang dengan `API_BASE_URL` HTTPS, signing key rilis, dan tanpa ketergantungan `adb reverse`.
 
 ## 7. Keamanan
 

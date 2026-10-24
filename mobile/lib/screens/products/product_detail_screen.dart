@@ -333,7 +333,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _type,
+                        initialValue: _type,
                         decoration: const InputDecoration(labelText: 'Tipe'),
                         items: const [
                           DropdownMenuItem(value: 'IN', child: Text('IN — masuk')),

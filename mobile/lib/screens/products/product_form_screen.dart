@@ -61,13 +61,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     try {
       final categoryProvider = context.read<CategoryProvider>();
+      final productProvider = context.read<ProductProvider>();
       await categoryProvider.load(force: true);
 
       Product? product;
       if (_isEdit) {
-        product = await context
-            .read<ProductProvider>()
-            .getProduct(widget.productId!);
+        product = await productProvider.getProduct(widget.productId!);
       }
 
       if (!mounted) return;
@@ -254,7 +253,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             const SizedBox(height: 12),
           ],
           if (categories.isEmpty) ...[
-            InlineMessage(
+            const InlineMessage(
               message:
                   'Belum ada kategori. Buat kategori terlebih dahulu sebelum menyimpan produk.',
             ),
@@ -303,7 +302,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _selectedCategoryId,
+                        initialValue: _selectedCategoryId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Kategori',

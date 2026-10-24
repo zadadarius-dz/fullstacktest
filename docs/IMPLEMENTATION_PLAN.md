@@ -26,7 +26,8 @@ Karena tidak ada scaffold `StockMate.Api` atau `WeatherForecast` yang perlu dipe
 | .NET 10 SDK | **Tidak terpasang** |
 | Node.js | v24.18.0 |
 | npm | 11.16.0 |
-| Flutter / Dart | **Tidak terpasang** (tidak ada di `PATH`) |
+| Flutter / Dart | **3.47.8 stable / Dart 3.13.7** (portable di `%LOCALAPPDATA%\flutter`) |
+| Android SDK | **36.1.0** di `%LOCALAPPDATA%\Android\Sdk`; build-tools 36.0.0/36.1.0/37.0.0; JDK 17 dari Android Studio |
 | PostgreSQL | **18.6**, service `postgresql-x64-18` **running** pada port 5432 |
 | `psql` | Tersedia di `C:\Program Files\PostgreSQL\18\bin\psql.exe`, tidak ada di `PATH` |
 | Docker | Tidak tersedia |
@@ -38,6 +39,7 @@ Karena tidak ada scaffold `StockMate.Api` atau `WeatherForecast` yang perlu dipe
 - Koneksi tanpa password ditolak: `fe_sendauth: no password supplied`.
 - **Password tidak diminta dan tidak akan disimpan di repository.** Pengguna harus mengisi connection string melalui environment variable.
 - Untuk verifikasi integrasi nyata tanpa menyentuh instance utama, integration test memakai cluster PostgreSQL sementara yang dibuat dengan `initdb` (trust auth, port terpisah) bila tersedia. Hasilnya dilaporkan terpisah dari instance utama.
+- Pada 24 Oktober 2026, database `stockmate` dan role `stockmate_app` dibuat di instance utama melalui skrip interaktif; schema `001_initial_schema.sql` berhasil dijalankan dan `/health` mengembalikan `Healthy`. Password hanya dimasukkan di jendela skrip dan tidak disimpan di repository.
 
 ### Keputusan teknologi
 
@@ -50,7 +52,7 @@ Karena tidak ada scaffold `StockMate.Api` atau `WeatherForecast` yang perlu dipe
 | JWT Bearer | Signing key dari environment; di Development boleh memakai key ephemeral in-memory agar developer bisa langsung menjalankan API tanpa menaruh secret di repo. Di Production key wajib. |
 | Serilog | Console + rolling file, request logging tanpa body/credential. |
 | React + Vite (JavaScript) | Sesuai PRD; mengurangi beban setup. |
-| Flutter | Struktur kode tetap dibuat; build/analyze **tidak dapat diverifikasi** di mesin ini. |
+| Flutter | Flutter 3.47.8 + Android SDK 36; `flutter analyze`, `flutter test`, dan build APK dijalankan pada 24 Oktober 2026. |
 
 ## 2. Milestone dan status
 
@@ -62,7 +64,7 @@ Karena tidak ada scaffold `StockMate.Api` atau `WeatherForecast` yang perlu dipe
 | 3 | Stock movements atomik + dashboard + integration test | ✅ Selesai |
 | 4 | Build/test backend dan smoke test API | ✅ Selesai — 9/9 test lulus |
 | 5 | React web (`stockmate-web`) | ✅ Selesai — lint bersih, build berhasil |
-| 6 | Flutter mobile (`stockmate-mobile`) | ⚠️ Kode selesai; **build/analyze belum diverifikasi** (toolchain tidak tersedia) |
+| 6 | Flutter mobile (`mobile/`) | ✅ Selesai — analyze bersih, 5/5 test, APK 50,0 MB terpasang & berjalan di HP Android 14 |
 | 7 | Deployment preparation + dokumentasi final | ✅ Dokumentasi selesai; **deployment belum dilakukan** |
 
 ### Hasil verifikasi akhir (24 Oktober 2026)
@@ -75,7 +77,10 @@ Karena tidak ada scaffold `StockMate.Api` atau `WeatherForecast` yang perlu dipe
 | Integration test | `dotnet test StockMate.sln --no-build` | **9 lulus**, 0 gagal, 0 skip, 12,4773 detik |
 | Web lint | `npm run lint` | Bersih |
 | Web build | `npm run build` | Berhasil, 53 modul, 905 ms |
-| Mobile | `flutter analyze` / `build apk` | Tidak dijalankan (Flutter/Android SDK tidak terpasang) |
+| Mobile analyze | `flutter analyze` | **No issues found** |
+| Mobile test | `flutter test` | **5/5 lulus** |
+| Mobile APK | `flutter build apk --release --dart-define=API_BASE_URL=http://127.0.0.1:5131` | Berhasil, **50,0 MB**, 123,9 detik (build kedua) |
+| Mobile runtime | `adb install` + `adb shell am start` | Terpasang dan berjalan di 2410FPCC5G Android 14; login & dashboard `200` |
 | Deployment | – | Belum dilakukan; tidak ada URL publik |
 
 Detail lengkap ada di [`TESTING.md`](TESTING.md).
@@ -119,8 +124,8 @@ StockMate.Api.Tests/  Unit + integration tests
 |---|---|---|
 | .NET 10 SDK tidak terpasang | Target sementara `net8.0` | Pasang .NET 10 SDK, ubah `TargetFramework` + paket ke 10.x, restore/build/test ulang sebelum rilis. |
 | Password PostgreSQL instance utama tidak tersedia (dan tidak boleh diminta) | API tidak bisa memakai DB 5432 tanpa konfigurasi pengguna | Pengguna membuat database + mengisi `ConnectionStrings__DefaultConnection` di environment. Panduan ada di README/DATABASE.md. |
-| Flutter/Android SDK tidak terpasang | `flutter analyze` / APK release tidak bisa dijalankan | Kode mobile dibuat lengkap; build APK ditandai belum terverifikasi. |
-| Tidak ada akses provider hosting / GitHub remote | Tidak ada deployment atau push | Semua URL publik ditandai `TODO: isi setelah deploy`; push tidak dilakukan. |
+| Flutter/Android SDK tidak terpasang | Sudah teratasi: Flutter 3.47.8 + Android SDK 36 terpasang | Analyze, test, dan APK sudah dijalankan; sisa pekerjaan adalah uji manual alur lengkap. |
+| Tidak ada akses provider hosting | Tidak ada deployment | Monorepo sudah di-push ke GitHub; deployment masih ditandai `TODO: isi setelah deploy`. |
 
 ## 5. Definition of Done (checklist proyek)
 
